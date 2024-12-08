@@ -43,7 +43,6 @@ class LoanDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Contact Dropdown
             DropdownButtonFormField<String>(
               value: selectedContact,
               decoration: const InputDecoration(
@@ -65,7 +64,6 @@ class LoanDialog extends StatelessWidget {
             const SizedBox(height: 10),
 
 
-            // Amount Input
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
@@ -78,7 +76,6 @@ class LoanDialog extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Installments Input
             TextField(
               controller: installmentsController,
               keyboardType: TextInputType.number,
@@ -91,7 +88,6 @@ class LoanDialog extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Duration Dropdown
             DropdownButtonFormField<String>(
               value: selectedDuration,
               decoration: const InputDecoration(
@@ -112,7 +108,7 @@ class LoanDialog extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Password Input
+
             TextField(
               controller: passwordController,
               obscureText: true,

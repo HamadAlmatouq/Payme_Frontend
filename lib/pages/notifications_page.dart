@@ -5,7 +5,6 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dummy notifications
     final List<String> notifications = [
       "Loan request approved!",
       "Hamad has sent you 500 KWD.",
