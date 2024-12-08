@@ -89,7 +89,7 @@ class PaymentDialog extends StatelessWidget {
                       icon: const Icon(Icons.face),
                       onPressed: () {
                         setState(() {
-                          passwordController.text = "khadeejah"; //default
+                          passwordController.text = "khadeejah";
                         });
                       },
                     ),
