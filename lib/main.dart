@@ -27,7 +27,7 @@ class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   
-  //     initialLocation: '/signup', // Main page
+  //     initialLocation: '/signup',
 
   @override
   Widget build(BuildContext context) {
