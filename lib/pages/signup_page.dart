@@ -5,15 +5,29 @@ import 'package:payme_frontend/providers/auth_provider.dart';
 
 class SignUpPage extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+
+  //New
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController civilIdController = TextEditingController();
 
   SignUpPage({super.key});
   final _formKey = GlobalKey<FormState>();
   String username = "";
   String password = "";
+
+  // new
+  String email = "";
+  String contact = "";
+  String civilId = "";
+  // String image = "";
+  // String balance = "";
+  // String loans = "";
+  // String debts = "";
+  // String userId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +76,9 @@ class SignUpPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
+                  // controller: usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: 'Username',
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.9),
                     border: OutlineInputBorder(
@@ -74,7 +89,7 @@ class SignUpPage extends StatelessWidget {
                   ),
                   keyboardType: TextInputType.text,
                   validator: (value) {
-                    if (value!.isEmpty) return "Please enter your name";
+                    if (value!.isEmpty) return "Please enter your username";
                     return null;
                   },
                   onSaved: (newValue) {
@@ -92,12 +107,60 @@ class SignUpPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     prefixIcon:
-                        const Icon(Icons.email, color: Colors.blueAccent),
+                        const Icon(Icons.person, color: Colors.blueAccent),
                   ),
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.text,
                   validator: (value) {
-                    if (value!.isEmpty) return "Please enter a valid email";
+                    if (value!.isEmpty)
+                      return "Please enter your Email Address";
                     return null;
+                  },
+                  onSaved: (newValue) {
+                    email = newValue!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: civilIdController,
+                  decoration: InputDecoration(
+                    labelText: 'Civil ID',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    prefixIcon:
+                        const Icon(Icons.person, color: Colors.blueAccent),
+                  ),
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value!.isEmpty) return "Please enter your Civil ID";
+                    return null;
+                  },
+                  onSaved: (newValue) {
+                    civilId = newValue!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: contactController,
+                  decoration: InputDecoration(
+                    labelText: 'Contact',
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    prefixIcon:
+                        const Icon(Icons.person, color: Colors.blueAccent),
+                  ),
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value!.isEmpty) return "Please enter your contact info";
+                    return null;
+                  },
+                  onSaved: (newValue) {
+                    contact = newValue!;
                   },
                 ),
                 const SizedBox(height: 20),
