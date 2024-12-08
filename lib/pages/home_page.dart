@@ -22,7 +22,6 @@ class HomePage extends StatelessWidget {
     {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
     {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
     {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
-
   ];
 
   final List<Map<String, dynamic>> upcomingPayments = [
@@ -43,16 +42,20 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  void _showLoanDialog(BuildContext context, String title, String action) {
+  void _showLoanDialog(BuildContext context, String title, String action,
+      {String? defaultContact, String? defaultImage}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return LoanDialog(
           title: title,
           action: action,
+          defaultContact: defaultContact,
+          defaultImage: defaultImage,
           onSubmit: ({
             required double amount,
             required String contact,
+            required String profileImage,
             String? installments,
             String? duration,
             String? password,
@@ -60,6 +63,7 @@ class HomePage extends StatelessWidget {
             print("Action: $action");
             print("Amount: $amount");
             print("Contact: $contact");
+            print("Profile Image: $profileImage");
             print("Installments: $installments");
             print("Duration: $duration");
             print("Password: $password");
@@ -73,6 +77,24 @@ class HomePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        String comment;
+        double rating = contact["rating"];
+
+        // Generate playful comment based on rating
+        if (rating >= 4.5) {
+          comment = "Outstanding! A top-tier lender!";
+        } else if (rating >= 4.0) {
+          comment = "Great! Reliable and trustworthy.";
+        } else if (rating >= 3.0) {
+          comment = "Good! A fair option to consider.";
+        } else {
+          comment = "Proceed with caution! Could be risky.";
+        }
+
+        // Number of stars based on rating
+        int fullStars = rating.floor();
+        bool halfStar = (rating - fullStars) >= 0.5;
+
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -93,9 +115,22 @@ class HomePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 20),
-                  Text("${contact["rating"]}"),
+                  ...List.generate(fullStars, (index) {
+                    return const Icon(Icons.star, color: Colors.amber, size: 20);
+                  }),
+                  if (halfStar)
+                    const Icon(Icons.star_half, color: Colors.amber, size: 20),
+                  if (!halfStar && fullStars < 5)
+                    ...List.generate(5 - fullStars, (index) {
+                      return const Icon(Icons.star_border, size: 20);
+                    }),
                 ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                comment,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 20),
               Row(
@@ -108,6 +143,8 @@ class HomePage extends StatelessWidget {
                         context,
                         "Borrow from ${contact["name"]}",
                         "Borrow",
+                        defaultContact: contact["name"],
+                        defaultImage: contact["image"],
                       );
                     },
                     child: const Text("Borrow"),
@@ -119,6 +156,8 @@ class HomePage extends StatelessWidget {
                         context,
                         "Lend to ${contact["name"]}",
                         "Lend",
+                        defaultContact: contact["name"],
+                        defaultImage: contact["image"],
                       );
                     },
                     child: const Text("Lend"),
@@ -153,15 +192,36 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "$greeting, $username",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: greeting,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: ", ",
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: username,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   IconButton(
@@ -173,8 +233,6 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-
-
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
@@ -213,8 +271,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-
-              
               Text(
                 "Contacts",
                 style: const TextStyle(
@@ -224,7 +280,7 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 100, 
+                height: 100,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: contacts.length,
@@ -254,9 +310,7 @@ class HomePage extends StatelessWidget {
                   },
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Text(
                 "Upcoming Payments",
                 style: const TextStyle(
