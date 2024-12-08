@@ -38,6 +38,10 @@ class MainApp extends StatelessWidget {
           path: '/home',
           builder: (context, state) => const MainScreen(),
         ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => NotificationsPage(),
+        ),
         // GoRoute(
         //   path: '/loan-dialog',
         //   builder: (context, state) {
