@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Dummy notifications
     final List<String> notifications = [
       "Loan request approved!",
       "Hamad has sent you 500 KWD.",
@@ -16,6 +16,11 @@ class NotificationsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go('/home');          },
+        ),
         title: const Text("Notifications"),
         backgroundColor: Colors.blueAccent,
       ),
