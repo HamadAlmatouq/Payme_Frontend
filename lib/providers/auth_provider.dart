@@ -1,86 +1,83 @@
-import 'dart:io';
+// lib/providers/auth_provider.dart
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:payme_frontend/models/user.dart';
-import 'package:payme_frontend/services/auth.dart';
 import 'package:payme_frontend/services/client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthProvider extends ChangeNotifier {
-  String? token; //"error", "email", "token"
-  User? user;
+class AuthProvider with ChangeNotifier {
+  String token = '';
 
-  Future<Map<String, String>> signup(
-      {required String username, required String password}) async {
-    var response = await AuthServices()
-        .signup(user: User(username: username, password: password));
-    if (response['token'] != null) {
-      _setToken(username, response['token']!);
-    }
-    print(response['token'] ?? 'No token');
-    notifyListeners();
-    return response;
-  }
+  // Sign Up
+  Future<void> signup({
+    required String username,
+    required String password,
+    required String email,
+    required String contact,
+    required String civilId,
+  }) async {
+    try {
+      Response response = await Client.dio.post(
+        '/auth/signup',
+        data: {
+          'username': username,
+          'password': password,
+          'email': email,
+          'contact': contact,
+          'civilId': civilId,
+        },
+      );
 
-  Future<Map<String, String>> signin(
-      {required String username, required String password}) async {
-    var response = await AuthServices()
-        .signin(user: User(username: username, password: password));
-    // this.user = user;
-    if (response['token'] != null) {
-      _setToken(username, response['token']!);
-    }
-    // print(token);
-    notifyListeners();
-    return response;
-  }
+      print('Signup Response Status: ${response.statusCode}');
+      print('Signup Response Data: ${response.data}');
 
-  bool isAuth() {
-    // print(user ?? 'No User');
-    // print(token ?? 'No token');
-    return (user != null && token != null);
-  }
+      if (response.statusCode == 201 &&
+          response.data != null &&
+          response.data['token'] != null) {
+        token = response.data['token'] as String;
+        print('Token received: $token');
 
-  Future<void> initAuth() async {
-    print("initAuth");
-    await _getToken();
-    if (isAuth()) {
-      Client.dio.options.headers = {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-      };
-      user = User(username: user!.username, password: token);
-      print('Bearer $token');
-      notifyListeners();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        print('Token saved to SharedPreferences');
+      } else {
+        print('Signup failed to get token');
+      }
+    } catch (e) {
+      print('Signup request error: $e');
     }
   }
 
-  void _setToken(String username, String token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    this.token = token;
-    user = User(username: username, password: token);
-    prefs.setString("username", username);
-    // prefs.setString("password", username);
-    prefs.setString("token", token);
-    notifyListeners();
-  }
+  Future<bool> signin({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      Response response = await Client.dio.post(
+        '/auth/signin',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
 
-  Future<void> _getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var username = prefs.getString("username");
-    var token = prefs.getString("token");
+      print('Sign-In Response Status: ${response.statusCode}');
+      if (response.statusCode == 200 &&
+          response.data != null &&
+          response.data['token'] != null) {
+        token = response.data['token'] as String;
 
-    if (username == null || token == null) return;
-
-    user = User(username: username, password: token);
-    this.token = token;
-    notifyListeners();
-  }
-
-  void logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('username');
-    prefs.remove('token');
-    user = null;
-    token = null;
-    notifyListeners();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        print('Token saved to SharedPreferences');
+        return true;
+      } else {
+        print('Sign-In failed');
+        return false;
+      }
+    } catch (e) {
+      print('Sign-In request error: $e');
+      return false;
+    }
   }
 }
