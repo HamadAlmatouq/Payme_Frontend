@@ -8,41 +8,6 @@ import 'package:payme_frontend/services/client.dart';
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
 
-// <<<<<< Khadeejah 
-//   void _showPaymentDialog(BuildContext context, String name, double amount) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return PaymentDialog(name: name, amount: amount);
-//       },
-//     );
-//   }
-
-//   final List<Map<String, dynamic>> contacts = [
-//     {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
-//     {"name": "Ghanim", "image": "assets/images/1.png", "rating": 3.8},
-//     {"name": "Yousef", "image": "assets/images/1.png", "rating": 4.0},
-//     {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
-//     {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
-//     {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
-//   ];
-
-//   final List<Map<String, dynamic>> upcomingPayments = [
-//     {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
-//     {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
-//     {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
-//     {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
-//   ];
-
-//   String getGreeting() {
-//     final hour = DateTime.now().hour;
-//     if (hour < 12) {
-//       return "Good Morning";
-//     } else if (hour < 17) {
-//       return "Good Afternoon";
-//     } else {
-//       return "Good Evening";
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -51,6 +16,22 @@ class _HomePageState extends State<HomePage> {
   double balance = 0.0;
   String greeting = "Good Morning";
   String username = "Hussain";
+
+  final List<Map<String, dynamic>> contacts = [
+    {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
+    {"name": "Ghanim", "image": "assets/images/1.png", "rating": 3.8},
+    {"name": "Yousef", "image": "assets/images/1.png", "rating": 4.0},
+    {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
+    {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
+    {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
+  ];
+
+  final List<Map<String, dynamic>> upcomingPayments = [
+    {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
+    {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
+    {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
+    {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
+  ];
 
   @override
   void initState() {
@@ -75,6 +56,15 @@ class _HomePageState extends State<HomePage> {
         balance = 0.0;
       });
     }
+  }
+
+  void _showPaymentDialog(BuildContext context, String name, double amount) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PaymentDialog(name: name, amount: amount);
+      },
+    );
   }
 
   void _showLoanDialog(BuildContext context, String title, String action,
@@ -115,7 +105,6 @@ class _HomePageState extends State<HomePage> {
         String comment;
         double rating = contact["rating"];
 
-        // Generate playful comment based on rating
         if (rating >= 4.5) {
           comment = "Outstanding! A top-tier lender!";
         } else if (rating >= 4.0) {
@@ -126,7 +115,6 @@ class _HomePageState extends State<HomePage> {
           comment = "Proceed with caution! Could be risky.";
         }
 
-        // Number of stars based on rating
         int fullStars = rating.floor();
         bool halfStar = (rating - fullStars) >= 0.5;
 
@@ -151,7 +139,8 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ...List.generate(fullStars, (index) {
-                    return const Icon(Icons.star, color: Colors.amber, size: 20);
+                    return const Icon(Icons.star,
+                        color: Colors.amber, size: 20);
                   }),
                   if (halfStar)
                     const Icon(Icons.star_half, color: Colors.amber, size: 20),
@@ -216,10 +205,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-// <<<<<<< khadeejah
-//     String greeting = getGreeting();
-//     String username = "Hussain";
-//     double balance = 1228.0;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -263,20 +248,9 @@ class _HomePageState extends State<HomePage> {
                     icon: const Icon(Icons.notifications),
                     onPressed: () {
                       context.go('/notifications');
-// <<<<<<< khadeejah
-//                     },
-//                   ),
-//                 ],
-// =======
-                    }),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               Container(
@@ -357,6 +331,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 20),
+              //
               Text(
                 "Upcoming Payments",
                 style: const TextStyle(
@@ -365,48 +340,77 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: upcomingPayments.length,
-                  itemBuilder: (context, index) {
-                    final payment = upcomingPayments[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blueAccent,
-                          child: Text(
-                            payment["name"][0],
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        title: Text(
-                          "${payment["amount"]} KWD",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                        subtitle: Text(
-                          "Due: ${payment["dueDate"]}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: () {
-                            _showPaymentDialog(
-                                context, payment["name"], payment["amount"]);
-                          },
-                          child: const Text("Pay"),
-                        ),
-                      ),
-                    );
-                  },
+Expanded(
+  child: ListView.builder(
+    itemCount: upcomingPayments.length,
+    itemBuilder: (context, index) {
+      final payment = upcomingPayments[index];
+      final initial = payment["name"][0].toUpperCase();
+
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.blueAccent,
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${payment["amount"]} KWD",
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 54, 139, 244),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      payment["name"],
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "Due: ${payment["dueDate"]}",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showPaymentDialog(
+                      context, payment["name"], payment["amount"]);
+                },
+                child: const Text("Pay"),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
             ],
           ),
         ),
@@ -414,4 +418,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
