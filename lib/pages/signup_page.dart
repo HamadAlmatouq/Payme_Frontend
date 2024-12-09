@@ -1,265 +1,94 @@
+// lib/screens/signup_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:payme_frontend/providers/auth_provider.dart';
+import '../providers/auth_provider.dart';
 
 class SignUpPage extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-      TextEditingController();
-
-  //New
+      TextEditingController(); // Added
   final TextEditingController emailController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController civilIdController = TextEditingController();
 
-  SignUpPage({super.key});
   final _formKey = GlobalKey<FormState>();
-  String username = "";
-  String password = "";
-
-  // new
-  String email = "";
-  String contact = "";
-  String civilId = "";
-  // String image = "";
-  // String balance = "";
-  // String loans = "";
-  // String debts = "";
-  // String userId = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'Create Account',
-      //     style: TextStyle(color: Colors.white),
-      //   ),
-      //   backgroundColor: Colors.blueAccent,
-      //   elevation: 0,
-      // ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 39, 143, 246),
-              Color.fromARGB(255, 183, 233, 249),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      appBar: AppBar(
+        title: Text('Sign Up'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.app_registration_outlined,
-                  size: 100,
-                  color: Colors.white,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Join PayMe!',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 32,
-                      ),
-                ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  // controller: usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.person, color: Colors.blueAccent),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value!.isEmpty) return "Please enter your username";
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    username = newValue!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email Address',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.person, color: Colors.blueAccent),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value!.isEmpty)
-                      return "Please enter your Email Address";
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    email = newValue!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: civilIdController,
-                  decoration: InputDecoration(
-                    labelText: 'Civil ID',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.person, color: Colors.blueAccent),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value!.isEmpty) return "Please enter your Civil ID";
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    civilId = newValue!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: contactController,
-                  decoration: InputDecoration(
-                    labelText: 'Contact',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.person, color: Colors.blueAccent),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value!.isEmpty) return "Please enter your contact info";
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    contact = newValue!;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Colors.blueAccent),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) return "Please enter a password";
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.9),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Colors.blueAccent),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) return "Please confirm your password";
-                    if (value != passwordController.text) {
-                      return "Passwords do not match";
-                    }
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    password = newValue!;
-                  },
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                    onPressed: () async {
-                      if (!_formKey.currentState!.validate()) return;
-                      _formKey.currentState!.save();
-
-                      var response = await context
-                          .read<AuthProvider>()
-                          .signup(username: username, password: password);
-                      if (response['error'] != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(response['error']!)),
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: usernameController,
+                decoration: InputDecoration(labelText: 'Username'),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter your username" : null,
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter your email" : null,
+              ),
+              TextFormField(
+                controller: contactController,
+                decoration: InputDecoration(labelText: 'Contact'),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter your contact" : null,
+              ),
+              TextFormField(
+                controller: civilIdController,
+                decoration: InputDecoration(labelText: 'Civil ID'),
+                validator: (value) => value!.isEmpty ? "Enter Civil ID" : null,
+              ),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: 'Password'),
+                validator: (value) {
+                  if (value!.isEmpty) return "Enter password";
+                  if (value.length < 4) return "Password too short";
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: 'Confirm Password'),
+                validator: (value) {
+                  if (value!.isEmpty) return "Confirm your password";
+                  if (value != passwordController.text)
+                    return "Passwords do not match";
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await context.read<AuthProvider>().signup(
+                          username: usernameController.text,
+                          password: passwordController.text,
+                          email: emailController.text,
+                          contact: contactController.text,
+                          civilId: civilIdController.text,
                         );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Account created successfully!"),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    context.go('/signin');
-                  },
-                  child: const Text(
-                    "Already have an account? Sign In",
-                    style: TextStyle(color: Colors.white),
-                    //(255, 0, 0, 230)
-                  ),
-                ),
-              ],
-            ),
+                    context.go("/home");
+                  }
+                },
+                child: Text('Sign Up'),
+              ),
+            ],
           ),
         ),
       ),

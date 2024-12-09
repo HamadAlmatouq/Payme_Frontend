@@ -10,7 +10,6 @@ import 'package:payme_frontend/pages/home_page.dart';
 import 'package:payme_frontend/pages/transaction_history_page.dart';
 import 'package:payme_frontend/pages/profile_page.dart';
 
-
 void main() {
   runApp(
     MultiProvider(
@@ -26,13 +25,12 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-  
-  //     initialLocation: '/signup',
+  //     initialLocation: '/signup', // Main page
 
   @override
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
-      initialLocation: '/home',
+      initialLocation: '/signup',
       routes: [
         GoRoute(
           path: '/home',
@@ -46,7 +44,7 @@ class MainApp extends StatelessWidget {
         GoRoute(
           path: '/notifications',
           builder: (context, state) => const NotificationsPage(),
-        ),        
+        ),
         GoRoute(
           path: '/signin',
           builder: (context, state) => SignInPage(),
@@ -75,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-     HomePage(),
+    HomePage(),
     const TransactionHistoryPage(),
     const ProfilePage(),
   ];

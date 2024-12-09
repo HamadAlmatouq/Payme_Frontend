@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:payme_frontend/models/user.dart';
+import 'package:payme_frontend/models/User.dart';
 import 'package:payme_frontend/services/client.dart';
 
 class AuthServices {

@@ -2,43 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:payme_frontend/pages/loan_dialog.dart';
 import 'package:payme_frontend/pages/payment_dialog.dart';
+import 'package:dio/dio.dart';
+import 'package:payme_frontend/services/client.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
 
-  void _showPaymentDialog(BuildContext context, String name, double amount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PaymentDialog(name: name, amount: amount);
-      },
-    );
+// <<<<<< Khadeejah 
+//   void _showPaymentDialog(BuildContext context, String name, double amount) {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return PaymentDialog(name: name, amount: amount);
+//       },
+//     );
+//   }
+
+//   final List<Map<String, dynamic>> contacts = [
+//     {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
+//     {"name": "Ghanim", "image": "assets/images/1.png", "rating": 3.8},
+//     {"name": "Yousef", "image": "assets/images/1.png", "rating": 4.0},
+//     {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
+//     {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
+//     {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
+//   ];
+
+//   final List<Map<String, dynamic>> upcomingPayments = [
+//     {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
+//     {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
+//     {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
+//     {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
+//   ];
+
+//   String getGreeting() {
+//     final hour = DateTime.now().hour;
+//     if (hour < 12) {
+//       return "Good Morning";
+//     } else if (hour < 17) {
+//       return "Good Afternoon";
+//     } else {
+//       return "Good Evening";
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  double balance = 0.0;
+  String greeting = "Good Morning";
+  String username = "Hussain";
+
+  @override
+  void initState() {
+    super.initState();
+    _getBalance();
   }
 
-  final List<Map<String, dynamic>> contacts = [
-    {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
-    {"name": "Ghanim", "image": "assets/images/1.png", "rating": 3.8},
-    {"name": "Yousef", "image": "assets/images/1.png", "rating": 4.0},
-    {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
-    {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
-    {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
-  ];
+  Future<void> _getBalance() async {
+    try {
+      Response response = await Client.getBalance();
 
-  final List<Map<String, dynamic>> upcomingPayments = [
-    {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
-    {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
-    {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
-    {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
-  ];
-
-  String getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return "Good Morning";
-    } else if (hour < 17) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
+      if (response.statusCode == 200 && response.data is Map) {
+        setState(() {
+          balance = response.data['balance']?.toDouble() ?? 0.0;
+        });
+      } else {
+        print('Failed to get balance: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching balance: $e');
+      setState(() {
+        balance = 0.0;
+      });
     }
   }
 
@@ -181,10 +216,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String greeting = getGreeting();
-    String username = "Hussain";
-    double balance = 1228.0;
-
+// <<<<<<< khadeejah
+//     String greeting = getGreeting();
+//     String username = "Hussain";
+//     double balance = 1228.0;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -228,9 +263,20 @@ class HomePage extends StatelessWidget {
                     icon: const Icon(Icons.notifications),
                     onPressed: () {
                       context.go('/notifications');
-                    },
-                  ),
-                ],
+// <<<<<<< khadeejah
+//                     },
+//                   ),
+//                 ],
+// =======
+                    }),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
               ),
               const SizedBox(height: 20),
               Container(
@@ -368,3 +414,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
