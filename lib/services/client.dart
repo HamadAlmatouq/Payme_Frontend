@@ -10,7 +10,15 @@ class Client {
 
   static Future<String?> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    String? token = prefs.getString('auth_token');
+
+    if (token == null) {
+      print('No token found in SharedPreferences');
+    } else {
+      print('Token retrieved: $token');
+    }
+
+    return token;
   }
 
   static Future<Response> getBalance() async {
@@ -21,12 +29,42 @@ class Client {
     }
 
     try {
-      return await dio.get('/auth/balance',
-          options: Options(
-            headers: {'Authorization': 'Bearer $token'},
-          ));
+      return await dio.get(
+        '/auth/balance',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
     } catch (e) {
       throw Exception('Unable to get balance: $e');
+    }
+  }
+
+  static Future<Response> lendMoney({
+    required double amount,
+    required String toUsername,
+    required String endDate,
+  }) async {
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('No token found');
+    }
+
+    try {
+      return await dio.post(
+        '/loans',
+        data: {
+          "amount": amount,
+          "endDate": endDate,
+          "toUsername": toUsername,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+    } catch (e) {
+      throw Exception('Unable to lend money: $e');
     }
   }
 }
