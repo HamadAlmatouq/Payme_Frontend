@@ -390,7 +390,7 @@ Expanded(
                     Text(
                       "Due: ${payment["dueDate"]}",
                       style: const TextStyle(
-                        color: Colors.grey,
+                        color: Color.fromARGB(255, 210, 113, 113),
                         fontSize: 12,
                       ),
                     ),
