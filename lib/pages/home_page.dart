@@ -382,29 +382,84 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "$balance KWD",
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(20.0),
+                  width: MediaQuery.of(context).size.width *
+                      0.8, // Make the container wider
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withOpacity(0.2),
+                    borderRadius:
+                        BorderRadius.circular(16), // Smooth rounded corners
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.center, // Center-align content
+                    children: [
+                      Text(
+                        "Balance", // Title added above the balance amount
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => _showLendMoneyDialog(),
-                      child: const Text("Lend"),
-                    ),
-                  ],
+                      const SizedBox(
+                          height: 10), // Spacing between title and balance
+                      Text(
+                        "$balance KWD", // Dynamic balance value
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(
+                          height: 20), // Spacing between balance and button
+                      ElevatedButton(
+                        onPressed: () =>
+                            _showLendMoneyDialog(), // Show lend money dialog
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(8), // Rounded button
+                          ),
+                        ),
+                        child: const Text(
+                          "Lend",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              // Container(
+              //   padding: const EdgeInsets.all(16.0),
+              //   decoration: BoxDecoration(
+              //     color: Colors.blueAccent.withOpacity(0.2),
+              //     borderRadius: BorderRadius.circular(12),
+              //   ),
+              //   child: Column(
+              //     children: [
+              //       Text(
+              //         "$balance KWD",
+              //         style: const TextStyle(
+              //           fontSize: 28,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //       const SizedBox(height: 20),
+              //       ElevatedButton(
+              //         onPressed: () => _showLendMoneyDialog(),
+              //         child: const Text("Lend"),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 20),
               Text(
                 "Contacts",
