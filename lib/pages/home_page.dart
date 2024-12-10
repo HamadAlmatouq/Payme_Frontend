@@ -27,10 +27,10 @@ class _HomePageState extends State<HomePage> {
   ];
 
   final List<Map<String, dynamic>> upcomingPayments = [
-    {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
-    {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
-    {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
-    {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
+    {"name": "Hamad", "amount": 25.0, "dueDate": "15 Dec 2024"},
+    {"name": "Ghanim", "amount": 125.0, "dueDate": "17 Dec 2024"},
+    {"name": "Yousef", "amount": 41.0, "dueDate": "22 Dec 2024"},
+    {"name": "Reem", "amount": 75.0, "dueDate": "29 Dec 2024"},
   ];
 
   @override
