@@ -6,8 +6,9 @@ class User {
   final String civilId;
   double balance;
   final String toUsername;
-  final DateTime endDate;
-   double amount;
+  final DateTime installmentFrequency;
+  double amount;
+  int duration;
 
   User({
     required this.id,
@@ -17,8 +18,9 @@ class User {
     required this.civilId,
     required this.balance,
     required this.toUsername,
-    required this.endDate,
+    required this.installmentFrequency,
     required this.amount,
+    required this.duration
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -30,9 +32,9 @@ class User {
       civilId: json['civilId'],
       balance: json['balance'] ?? 0.0,
       toUsername: json['toUsername'],
-      endDate: json['endDate'],
+      installmentFrequency: json['installmentFrequency'],
       amount: json['amount'],
-
+      duration: json['duration'],
     );
   }
 
@@ -45,8 +47,9 @@ class User {
       'civilId': civilId,
       'balance': balance,
       'toUsername': toUsername,
-      'endDate': endDate,
+      'installmentFrequency': installmentFrequency,
       'amount': amount,
+      'duration': duration,
     };
   }
 }

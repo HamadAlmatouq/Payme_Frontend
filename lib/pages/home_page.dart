@@ -60,7 +60,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _lendMoney(
-      double amount, String toUsername, String endDate) async {
+    double amount,
+    String toUsername,
+    String installmentFrequency,
+    int duration,
+  ) async {
     if (amount > balance) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Insufficient balance to lend $amount KWD")),
@@ -78,11 +82,12 @@ class _HomePageState extends State<HomePage> {
       }
 
       Response response = await Client.dio.post(
-        '/loans',
+        '/loans/add-loan',
         data: {
           "amount": amount,
-          "endDate": endDate,
+          "installmentFrequency": installmentFrequency,
           "toUsername": toUsername,
+          "duration": duration,
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
@@ -117,52 +122,84 @@ class _HomePageState extends State<HomePage> {
   void _showLendMoneyDialog() {
     String toUsername = "";
     double amount = 0.0;
-    String endDate = "2025-01-01";
+    String installmentFrequency = "";
+    int duration = 0;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Lend Money"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: "Recipient Username"),
-                onChanged: (value) {
-                  toUsername = value;
+        return Container(
+          child: AlertDialog(
+            title: Text("Lend Money"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(labelText: "Recipient Username"),
+                  onChanged: (value) {
+                    toUsername = value;
+                  },
+                ),
+                TextField(
+                  decoration: InputDecoration(labelText: "Amount"),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    amount = double.tryParse(value) ?? 0.0;
+                  },
+                ),
+           // Dropdown to select Duration (1-12)
+              DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: "Duration"),
+                items: List.generate(12, (index) {
+                  int number = index + 1;
+                  return DropdownMenuItem<int>(
+                    value: number,
+                    child: Text('$number'),
+                  );
+                }),
+                value: duration != 0 ? duration : null,
+                onChanged: (newValue) {
+                  setState(() {
+                    duration = newValue!;
+                  });
                 },
               ),
-              TextField(
-                decoration: InputDecoration(labelText: "Amount"),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  amount = double.tryParse(value) ?? 0.0;
+                // Dropdown to select Installment Frequency
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(labelText: "Installment"),
+                  items: ['daily', 'weekly', 'monthly'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  value: installmentFrequency.isNotEmpty
+                      ? installmentFrequency
+                      : null,
+                  onChanged: (newValue) {
+                    setState(() {
+                      installmentFrequency = newValue!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
                 },
+                child: Text("Cancel"),
               ),
-              TextField(
-                decoration: InputDecoration(labelText: "End Date (YYYY-MM-DD)"),
-                onChanged: (value) {
-                  endDate = value;
+              ElevatedButton(
+                onPressed: () {
+                  _lendMoney(amount, toUsername, installmentFrequency, duration);
+                  Navigator.pop(context);
                 },
+                child: Text("Send"),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _lendMoney(amount, toUsername, endDate);
-                Navigator.pop(context);
-              },
-              child: Text("Send"),
-            ),
-          ],
         );
       },
     );
