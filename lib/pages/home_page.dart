@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:payme_frontend/providers/lending_provider.dart';
 import 'package:payme_frontend/services/client.dart';
-import 'package:payme_frontend/pages/loan_dialog.dart';
 import 'package:payme_frontend/pages/payment_dialog.dart';
 
 class HomePage extends StatefulWidget {
@@ -119,8 +118,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showLendMoneyDialog() {
-    String toUsername = "";
+  void _showLendMoneyDialog({String? prefilledUsername}) {
+    TextEditingController usernameController =
+        TextEditingController(text: prefilledUsername ?? "");
     double amount = 0.0;
     String installmentFrequency = "";
     int duration = 0;
@@ -128,28 +128,25 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          child: AlertDialog(
-            title: Text("Lend Money"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: InputDecoration(labelText: "Recipient Username"),
-                  onChanged: (value) {
-                    toUsername = value;
-                  },
-                ),
-                TextField(
-                  decoration: InputDecoration(labelText: "Amount"),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    amount = double.tryParse(value) ?? 0.0;
-                  },
-                ),
-           // Dropdown to select Duration (1-12)
+        return AlertDialog(
+          title: const Text("Lend Money"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: usernameController,
+                decoration:
+                    const InputDecoration(labelText: "Recipient Username"),
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: "Amount"),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  amount = double.tryParse(value) ?? 0.0;
+                },
+              ),
               DropdownButtonFormField<int>(
-                decoration: InputDecoration(labelText: "Duration"),
+                decoration: const InputDecoration(labelText: "Duration"),
                 items: List.generate(12, (index) {
                   int number = index + 1;
                   return DropdownMenuItem<int>(
@@ -164,49 +161,166 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
-                // Dropdown to select Installment Frequency
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(labelText: "Installment"),
-                  items: ['daily', 'weekly', 'monthly'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  value: installmentFrequency.isNotEmpty
-                      ? installmentFrequency
-                      : null,
-                  onChanged: (newValue) {
-                    setState(() {
-                      installmentFrequency = newValue!;
-                    });
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: "Installment"),
+                items: ['daily', 'weekly', 'monthly'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                value: installmentFrequency.isNotEmpty
+                    ? installmentFrequency
+                    : null,
+                onChanged: (newValue) {
+                  setState(() {
+                    installmentFrequency = newValue!;
+                  });
                 },
-                child: Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _lendMoney(amount, toUsername, installmentFrequency, duration);
-                  Navigator.pop(context);
-                },
-                child: Text("Send"),
               ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _lendMoney(
+                  amount,
+                  usernameController.text,
+                  installmentFrequency,
+                  duration,
+                );
+                Navigator.pop(context);
+              },
+              child: const Text("Send"),
+            ),
+          ],
         );
       },
     );
   }
 
+  Widget _buildStarRating(double rating) {
+    int fullStars = rating.floor();
+    bool halfStar = (rating - fullStars) >= 0.5;
+
+    return Row(
+      children: [
+        ...List.generate(fullStars, (index) {
+          return const Icon(Icons.star, color: Colors.amber, size: 14);
+        }),
+        if (halfStar)
+          const Icon(Icons.star_half, color: Colors.amber, size: 14),
+        if (fullStars < 5 && !halfStar)
+          ...List.generate(5 - fullStars, (index) {
+            return const Icon(Icons.star_border, color: Colors.amber, size: 14);
+          }),
+      ],
+    );
+  }
+
   void _showContactDialog(BuildContext context, Map<String, dynamic> contact) {
-    // Implementation for showing a contact-specific dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        double rating = contact["rating"];
+        String comment;
+
+        // Determine the comment based on the rating
+        if (rating >= 4.5) {
+          comment = "Trustworthy, always pays on time.";
+        } else if (rating >= 4.0) {
+          comment = "Great, reliable lender.";
+        } else if (rating >= 3.0) {
+          comment = "Good, but proceed with caution.";
+        } else {
+          comment = "Risky, be careful.";
+        }
+
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Back Arrow
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Profile Picture
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: AssetImage(contact["image"]),
+                ),
+                const SizedBox(height: 10),
+                // Name
+                Text(
+                  contact["name"],
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Star Ratings
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    if (index < rating.floor()) {
+                      return const Icon(Icons.star,
+                          color: Colors.amber, size: 20);
+                    } else if (index < rating) {
+                      return const Icon(Icons.star_half,
+                          color: Colors.amber, size: 20);
+                    } else {
+                      return const Icon(Icons.star_border,
+                          color: Colors.amber, size: 20);
+                    }
+                  }),
+                ),
+                const SizedBox(height: 10),
+                // Comment
+                Text(
+                  comment,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+                // Buttons: Lend
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        // Lend logic
+                        _showLendMoneyDialog(
+                            prefilledUsername: contact["name"]);
+                      },
+                      child: const Text("Lend"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showPaymentDialog(BuildContext context, String name, double amount) {
@@ -285,14 +399,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: _showLendMoneyDialog,
-                      child: const Text("Lend Money"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        print("Button");
-                      },
-                      child: const Text("Third Button"),
+                      onPressed: () => _showLendMoneyDialog(),
+                      child: const Text("Lend"),
                     ),
                   ],
                 ),
@@ -307,7 +415,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 100,
+                height: 130,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: contacts.length,
@@ -315,29 +423,31 @@ class _HomePageState extends State<HomePage> {
                     final contact = contacts[index];
                     return Padding(
                       padding: const EdgeInsets.only(right: 12.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          _showContactDialog(context, contact);
-                        },
-                        child: Column(
-                          children: [
-                            CircleAvatar(
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showContactDialog(context, contact);
+                            },
+                            child: CircleAvatar(
                               radius: 30,
                               backgroundImage: AssetImage(contact["image"]),
                             ),
-                            const SizedBox(height: 5),
-                            Text(
-                              contact["name"],
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            contact["name"],
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          // const SizedBox(height: 5),
+                          // _buildStarRating(contact["rating"]),
+                        ],
                       ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              //const SizedBox(height: -5),
               Text(
                 "Upcoming Payments",
                 style: const TextStyle(
