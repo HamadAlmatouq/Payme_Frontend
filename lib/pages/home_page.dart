@@ -128,66 +128,78 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Lend Money"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: "Recipient Username"),
-                onChanged: (value) {
-                  toUsername = value;
-                },
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: "Amount"),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  amount = double.tryParse(value) ?? 0.0;
-                },
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: "Duration (in INT)"),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  duration = int.tryParse(value) ?? 0;
-                },
-              ),
-              // Dropdown to select Installment Frequency
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: "Installment"),
-                items: ['daily', 'weekly', 'monthly'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+        return Container(
+          child: AlertDialog(
+            title: Text("Lend Money"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(labelText: "Recipient Username"),
+                  onChanged: (value) {
+                    toUsername = value;
+                  },
+                ),
+                TextField(
+                  decoration: InputDecoration(labelText: "Amount"),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    amount = double.tryParse(value) ?? 0.0;
+                  },
+                ),
+           // Dropdown to select Duration (1-12)
+              DropdownButtonFormField<int>(
+                decoration: InputDecoration(labelText: "Duration"),
+                items: List.generate(12, (index) {
+                  int number = index + 1;
+                  return DropdownMenuItem<int>(
+                    value: number,
+                    child: Text('$number'),
                   );
-                }).toList(),
-                value: installmentFrequency.isNotEmpty
-                    ? installmentFrequency
-                    : null,
+                }),
+                value: duration != 0 ? duration : null,
                 onChanged: (newValue) {
                   setState(() {
-                    installmentFrequency = newValue!;
+                    duration = newValue!;
                   });
                 },
               ),
+                // Dropdown to select Installment Frequency
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(labelText: "Installment"),
+                  items: ['daily', 'weekly', 'monthly'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  value: installmentFrequency.isNotEmpty
+                      ? installmentFrequency
+                      : null,
+                  onChanged: (newValue) {
+                    setState(() {
+                      installmentFrequency = newValue!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _lendMoney(amount, toUsername, installmentFrequency, duration);
+                  Navigator.pop(context);
+                },
+                child: Text("Send"),
+              ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _lendMoney(amount, toUsername, installmentFrequency, duration);
-                Navigator.pop(context);
-              },
-              child: Text("Send"),
-            ),
-          ],
         );
       },
     );
