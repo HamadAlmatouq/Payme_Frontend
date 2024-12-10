@@ -5,6 +5,7 @@ import 'package:payme_frontend/pages/notifications_page.dart';
 import 'package:payme_frontend/pages/signin_page.dart';
 import 'package:payme_frontend/pages/signup_page.dart';
 import 'package:payme_frontend/providers/auth_provider.dart';
+import 'package:payme_frontend/providers/lending_Provider.dart';
 import 'package:provider/provider.dart';
 import 'package:payme_frontend/pages/home_page.dart';
 import 'package:payme_frontend/pages/transaction_history_page.dart';
@@ -15,6 +16,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        // ChangeNotifierProvider<LendingProvider>(
+        //     create: (_) => LendingProvider()),
         //2nd provider
       ],
       child: const MainApp(),
@@ -40,7 +43,6 @@ class MainApp extends StatelessWidget {
           path: '/notifications',
           builder: (context, state) => NotificationsPage(),
         ),
-        
         GoRoute(
           path: '/notifications',
           builder: (context, state) => const NotificationsPage(),

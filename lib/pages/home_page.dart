@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
+import 'package:payme_frontend/providers/lending_provider.dart';
+import 'package:payme_frontend/services/client.dart';
 import 'package:payme_frontend/pages/loan_dialog.dart';
 import 'package:payme_frontend/pages/payment_dialog.dart';
-import 'package:dio/dio.dart';
-import 'package:payme_frontend/services/client.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -27,10 +28,10 @@ class _HomePageState extends State<HomePage> {
   ];
 
   final List<Map<String, dynamic>> upcomingPayments = [
-    {"name": "Hamad", "amount": 25.0, "dueDate": "15 Dec 2024"},
-    {"name": "Ghanim", "amount": 125.0, "dueDate": "17 Dec 2024"},
-    {"name": "Yousef", "amount": 41.0, "dueDate": "22 Dec 2024"},
-    {"name": "Reem", "amount": 75.0, "dueDate": "29 Dec 2024"},
+    {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
+    {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
+    {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
+    {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
   ];
 
   @override
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _getBalance() async {
     try {
-      Response response = await Client.getBalance();
+      Response response = await LendingProvider.getBalance();
 
       if (response.statusCode == 200 && response.data is Map) {
         setState(() {
@@ -58,135 +59,92 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showPaymentDialog(BuildContext context, String name, double amount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PaymentDialog(name: name, amount: amount);
-      },
-    );
-  }
+  Future<void> _lendMoney(
+      double amount, String toUsername, String endDate) async {
+    if (amount > balance) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Insufficient balance to lend $amount KWD")),
+      );
+      return;
+    }
 
-  void _showLoanDialog(BuildContext context, String title, String action,
-      {String? defaultContact, String? defaultImage}) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return LoanDialog(
-          title: title,
-          action: action,
-          defaultContact: defaultContact,
-          defaultImage: defaultImage,
-          onSubmit: ({
-            required double amount,
-            required String contact,
-            required String profileImage,
-            String? installments,
-            String? duration,
-            String? password,
-          }) {
-            print("Action: $action");
-            print("Amount: $amount");
-            print("Contact: $contact");
-            print("Profile Image: $profileImage");
-            print("Installments: $installments");
-            print("Duration: $duration");
-            print("Password: $password");
-          },
+    try {
+      final token = await LendingProvider.getToken();
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No token found. Please sign in again.")),
         );
-      },
-    );
+        return;
+      }
+
+      Response response = await Client.dio.post(
+        '/loans',
+        data: {
+          "amount": amount,
+          "endDate": endDate,
+          "toUsername": toUsername,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          balance -= amount;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("Successfully lent $amount KWD to $toUsername")),
+        );
+      } else {
+        print('Failed to lend money: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Failed to lend money: ${response.data['message'] ?? 'Unknown error'}"),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error lending money: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while lending money")),
+      );
+    }
   }
 
-  void _showContactDialog(BuildContext context, Map<String, dynamic> contact) {
+  void _showLendMoneyDialog() {
+    String toUsername = "";
+    double amount = 0.0;
+    String endDate = "2025-01-01";
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String comment;
-        double rating = contact["rating"];
-
-        if (rating >= 4.5) {
-          comment = "Outstanding! A top-tier lender!";
-        } else if (rating >= 4.0) {
-          comment = "Great! Reliable and trustworthy.";
-        } else if (rating >= 3.0) {
-          comment = "Good! A fair option to consider.";
-        } else {
-          comment = "Proceed with caution! Could be risky.";
-        }
-
-        int fullStars = rating.floor();
-        bool halfStar = (rating - fullStars) >= 0.5;
-
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage(contact["image"]),
-              ),
-              const SizedBox(width: 10),
-              Text(contact["name"]),
-            ],
-          ),
+          title: Text("Lend Money"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...List.generate(fullStars, (index) {
-                    return const Icon(Icons.star,
-                        color: Colors.amber, size: 20);
-                  }),
-                  if (halfStar)
-                    const Icon(Icons.star_half, color: Colors.amber, size: 20),
-                  if (!halfStar && fullStars < 5)
-                    ...List.generate(5 - fullStars, (index) {
-                      return const Icon(Icons.star_border, size: 20);
-                    }),
-                ],
+              TextField(
+                decoration: InputDecoration(labelText: "Recipient Username"),
+                onChanged: (value) {
+                  toUsername = value;
+                },
               ),
-              const SizedBox(height: 10),
-              Text(
-                comment,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              TextField(
+                decoration: InputDecoration(labelText: "Amount"),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  amount = double.tryParse(value) ?? 0.0;
+                },
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showLoanDialog(
-                        context,
-                        "Borrow from ${contact["name"]}",
-                        "Borrow",
-                        defaultContact: contact["name"],
-                        defaultImage: contact["image"],
-                      );
-                    },
-                    child: const Text("Borrow"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showLoanDialog(
-                        context,
-                        "Lend to ${contact["name"]}",
-                        "Lend",
-                        defaultContact: contact["name"],
-                        defaultImage: contact["image"],
-                      );
-                    },
-                    child: const Text("Lend"),
-                  ),
-                ],
+              TextField(
+                decoration: InputDecoration(labelText: "End Date (YYYY-MM-DD)"),
+                onChanged: (value) {
+                  endDate = value;
+                },
               ),
             ],
           ),
@@ -195,10 +153,30 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Close"),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _lendMoney(amount, toUsername, endDate);
+                Navigator.pop(context);
+              },
+              child: Text("Send"),
             ),
           ],
         );
+      },
+    );
+  }
+
+  void _showContactDialog(BuildContext context, Map<String, dynamic> contact) {
+    // Implementation for showing a contact-specific dialog
+  }
+
+  void _showPaymentDialog(BuildContext context, String name, double amount) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PaymentDialog(name: name, amount: amount);
       },
     );
   }
@@ -269,23 +247,15 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _showLoanDialog(context, "Borrow Money", "Borrow");
-                          },
-                          child: const Text("Borrow"),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            _showLoanDialog(context, "Lend Money", "Lend");
-                          },
-                          child: const Text("Lend"),
-                        ),
-                      ],
+                    ElevatedButton(
+                      onPressed: _showLendMoneyDialog,
+                      child: const Text("Lend Money"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        print("Button");
+                      },
+                      child: const Text("Third Button"),
                     ),
                   ],
                 ),
@@ -331,7 +301,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              //
               Text(
                 "Upcoming Payments",
                 style: const TextStyle(
@@ -340,77 +309,77 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 10),
-Expanded(
-  child: ListView.builder(
-    itemCount: upcomingPayments.length,
-    itemBuilder: (context, index) {
-      final payment = upcomingPayments[index];
-      final initial = payment["name"][0].toUpperCase();
-
-      return Card(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: Colors.blueAccent,
-                child: Text(
-                  initial,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${payment["amount"]} KWD",
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 54, 139, 244),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                child: ListView.builder(
+                  itemCount: upcomingPayments.length,
+                  itemBuilder: (context, index) {
+                    final payment = upcomingPayments[index];
+                    final initial = payment["name"][0].toUpperCase();
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.blueAccent,
+                              child: Text(
+                                initial,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${payment["amount"]} KWD",
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 54, 139, 244),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    payment["name"],
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    "Due: ${payment["dueDate"]}",
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 210, 113, 113),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _showPaymentDialog(context, payment["name"],
+                                    payment["amount"]);
+                              },
+                              child: const Text("Pay"),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      payment["name"],
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "Due: ${payment["dueDate"]}",
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 210, 113, 113),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _showPaymentDialog(
-                      context, payment["name"], payment["amount"]);
-                },
-                child: const Text("Pay"),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-),
             ],
           ),
         ),
