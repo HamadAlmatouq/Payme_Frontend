@@ -1,41 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/client.dart';
 
 class LendingProvider with ChangeNotifier {
-  double _balance = 0.0;
 
-  double get balance => _balance;
+  // Token
+static Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
 
-  Future<void> fetchBalance() async {
+    if (token == null) {
+      print('No token found in SharedPreferences');
+    } else {
+      print('Token retrieved: $token');
+    }
+
+    return token;
+  }
+
+  // Balance
+  static Future<Response> getBalance() async {
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('No token found');
+    }
+
     try {
-      Response response = await Client.dio.get('/auth/balance');
-
-      if (response.statusCode == 200 && response.data is Map) {
-        _balance = response.data['balance']?.toDouble() ?? 0.0;
-        notifyListeners();
-      }
+      return await Client.dio.get(
+        '/auth/balance',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
     } catch (e) {
-      print('Error fetching balance: $e');
-      _balance = 0.0;
-      notifyListeners();
+      throw Exception('Unable to get balance: $e');
     }
   }
 
-  Future<void> lendMoney(double amount, String toUsername, String endDate, BuildContext context) async {
-    final token = await Client.getToken();
+  // Lending
+  static Future<Response> lendMoney({
+    required double amount,
+    required String toUsername,
+    required String endDate,
+  }) async {
+    final token = await getToken();
 
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No token found. Please sign in again.')),
-      );
-      return;
+      throw Exception('No token found');
     }
 
-    print('Token being used for request: $token');
-
     try {
-      Response response = await Client.dio.post(
+      return await Client.dio.post(
         '/loans',
         data: {
           "amount": amount,
@@ -46,26 +63,12 @@ class LendingProvider with ChangeNotifier {
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
-
-      print('API Response: ${response.statusCode}');
-      print('Response data: ${response.data}');
-
-      if (response.statusCode == 200) {
-        _balance -= amount;
-        notifyListeners();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Successfully lent $amount KWD to $toUsername")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to lend money')),
-        );
-      }
     } catch (e) {
-      print('Request Error: ${Error}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred while lending money')),
-      );
+      throw Exception('Unable to lend money: $e');
     }
   }
 }
+
+
+  
+

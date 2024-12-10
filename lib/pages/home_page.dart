@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
+import 'package:payme_frontend/providers/lending_provider.dart';
 import 'package:payme_frontend/services/client.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,11 +20,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getBalance();
+    
   }
 
   Future<void> _getBalance() async {
     try {
-      Response response = await Client.getBalance();
+      Response response = await LendingProvider.getBalance();
 
       if (response.statusCode == 200 && response.data is Map) {
         setState(() {
@@ -50,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      final token = await Client.getToken();
+      final token = await LendingProvider.getToken();
       if (token == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("No token found. Please sign in again.")),
@@ -222,7 +224,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              // The rest of your UI remains unchanged
+              // The rest of the UI goes here
             ],
           ),
         ),
