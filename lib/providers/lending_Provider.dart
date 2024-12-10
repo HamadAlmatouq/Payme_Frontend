@@ -43,7 +43,9 @@ static Future<String?> getToken() async {
   static Future<Response> lendMoney({
     required double amount,
     required String toUsername,
-    required String endDate,
+    required String installmentFrequency,
+    required int duration
+
   }) async {
     final token = await getToken();
 
@@ -53,11 +55,13 @@ static Future<String?> getToken() async {
 
     try {
       return await Client.dio.post(
-        '/loans',
+        '/loans/add-loan',
         data: {
           "amount": amount,
-          "endDate": endDate,
+          "installmentFrequency": installmentFrequency,
           "toUsername": toUsername,
+          "duration": duration,
+          
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},

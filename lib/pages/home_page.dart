@@ -60,7 +60,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _lendMoney(
-      double amount, String toUsername, String endDate) async {
+    double amount,
+    String toUsername,
+    String installmentFrequency,
+    int duration,
+  ) async {
     if (amount > balance) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Insufficient balance to lend $amount KWD")),
@@ -78,11 +82,12 @@ class _HomePageState extends State<HomePage> {
       }
 
       Response response = await Client.dio.post(
-        '/loans',
+        '/loans/add-loan',
         data: {
           "amount": amount,
-          "endDate": endDate,
+          "installmentFrequency": installmentFrequency,
           "toUsername": toUsername,
+          "duration": duration,
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
@@ -117,7 +122,8 @@ class _HomePageState extends State<HomePage> {
   void _showLendMoneyDialog() {
     String toUsername = "";
     double amount = 0.0;
-    String endDate = "2025-01-01";
+    String installmentFrequency = "";
+    int duration = 0;
 
     showDialog(
       context: context,
@@ -141,9 +147,28 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               TextField(
-                decoration: InputDecoration(labelText: "End Date (YYYY-MM-DD)"),
+                decoration: InputDecoration(labelText: "Duration (in INT)"),
+                keyboardType: TextInputType.number,
                 onChanged: (value) {
-                  endDate = value;
+                  duration = int.tryParse(value) ?? 0;
+                },
+              ),
+              // Dropdown to select Installment Frequency
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: "Installment"),
+                items: ['daily', 'weekly', 'monthly'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                value: installmentFrequency.isNotEmpty
+                    ? installmentFrequency
+                    : null,
+                onChanged: (newValue) {
+                  setState(() {
+                    installmentFrequency = newValue!;
+                  });
                 },
               ),
             ],
@@ -157,7 +182,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
               onPressed: () {
-                _lendMoney(amount, toUsername, endDate);
+                _lendMoney(amount, toUsername, installmentFrequency, duration);
                 Navigator.pop(context);
               },
               child: Text("Send"),
