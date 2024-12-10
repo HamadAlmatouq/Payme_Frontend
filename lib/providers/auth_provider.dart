@@ -48,6 +48,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Sign in
   Future<bool> signin({
     required String username,
     required String password,

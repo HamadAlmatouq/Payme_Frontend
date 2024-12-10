@@ -9,7 +9,7 @@ class SignUpPage extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-      TextEditingController(); // Added
+      TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController civilIdController = TextEditingController();
@@ -34,12 +34,12 @@ class SignUpPage extends StatelessWidget {
                 validator: (value) =>
                     value!.isEmpty ? "Enter your username" : null,
               ),
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter your email" : null,
-              ),
+              // TextFormField(
+              //   controller: emailController,
+              //   decoration: InputDecoration(labelText: 'Email'),
+              //   validator: (value) =>
+              //       value!.isEmpty ? "Enter your email" : null,
+              // ),
               TextFormField(
                 controller: contactController,
                 decoration: InputDecoration(labelText: 'Contact'),
