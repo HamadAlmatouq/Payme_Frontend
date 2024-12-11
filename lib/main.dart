@@ -33,20 +33,20 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
-      initialLocation: '/signin',
+      initialLocation: '/home',
       routes: [
         GoRoute(
           path: '/home',
-          builder: (context, state) => const MainScreen(),
+          builder: (context, state) => const HomePage(),
         ),
         GoRoute(
           path: '/notifications',
           builder: (context, state) => NotificationsPage(),
         ),
-        GoRoute(
-          path: '/notifications',
-          builder: (context, state) => const NotificationsPage(),
-        ),
+        // GoRoute(
+        //   path: '/notifications',
+        //   builder: (context, state) => const NotificationsPage(),
+        // ),
         GoRoute(
           path: '/signin',
           builder: (context, state) => SignInPage(),
@@ -64,50 +64,51 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
+// class MainScreen extends StatefulWidget {
+//   const MainScreen({Key? key}) : super(key: key);
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+//   @override
+//   State<MainScreen> createState() => _MainScreenState();
+// }
 
-  final List<Widget> _pages = [
-    HomePage(),
-    const TransactionHistoryPage(),
-    const ProfilePage(),
-  ];
+// class _MainScreenState extends State<MainScreen> {
+//   int _selectedIndex = 0;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+//   final List<Widget> _pages = [
+//     HomePage(),
+//     const TransactionHistoryPage(),
+//     const ProfilePage(),
+//   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Transactions',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   void _onItemTapped(int index) {
+//     setState(() {
+//       _selectedIndex = index;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: _pages[_selectedIndex],
+//       bottomNavigationBar: BottomNavigationBar(
+//         currentIndex: _selectedIndex,
+//         onTap: _onItemTapped,
+//         items: const [
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.home),
+//             label: 'Home',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.history),
+//             label: 'Transactions',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Icon(Icons.person),
+//             label: 'Profile',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
