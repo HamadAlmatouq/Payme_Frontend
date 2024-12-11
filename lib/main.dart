@@ -16,8 +16,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-        // ChangeNotifierProvider<LendingProvider>(
-        //     create: (_) => LendingProvider()),
+        ChangeNotifierProvider<LendingProvider>(
+            create: (_) => LendingProvider()),
         //2nd provider
       ],
       child: const MainApp(),

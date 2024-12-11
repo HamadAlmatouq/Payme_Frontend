@@ -54,21 +54,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchDebts() async {
-    final token = await LendingProvider.getToken();
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No token found. Please sign in again.")),
-      );
-      return;
-    }
-
     try {
-      Response response = await Client.dio.get(
-        '/loans/debts',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
-      );
+      Response response = await LendingProvider.fetchDebts();
 
       if (response.statusCode == 200 && response.data is Map) {
         setState(() {
@@ -97,25 +84,11 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      final token = await LendingProvider.getToken();
-      if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("No token found. Please sign in again.")),
-        );
-        return;
-      }
-
-      Response response = await Client.dio.post(
-        '/loans/add-loan',
-        data: {
-          "amount": amount,
-          "installmentFrequency": installmentFrequency,
-          "toUsername": toUsername,
-          "duration": duration,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
+      Response response = await LendingProvider.lendMoney(
+        amount: amount,
+        toUsername: toUsername,
+        installmentFrequency: installmentFrequency,
+        duration: duration,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -126,7 +99,8 @@ class _HomePageState extends State<HomePage> {
           SnackBar(
               content: Text("Successfully lent $amount KWD to $toUsername")),
         );
-        _fetchDebts(); // Refresh the debts list
+
+        _fetchDebts();
       } else {
         print('Failed to lend money: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,30 +120,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _repayLoan(String loanId, double amount) async {
     try {
-      final token = await LendingProvider.getToken();
-      if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("No token found. Please sign in again.")),
-        );
-        return;
-      }
-
-      Response response = await Client.dio.post(
-        '/loans/repay-loan',
-        data: {
-          "loanId": loanId,
-          "amount": amount,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
+      Response response = await LendingProvider.repayLoan(
+        loanId: loanId,
+        amount: amount,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Successfully repaid $amount KWD")),
         );
-        _fetchDebts(); // Refresh the debts list
+        _fetchDebts();
       } else {
         print('Failed to repay loan: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +260,7 @@ class _HomePageState extends State<HomePage> {
         double rating = contact["rating"];
         String comment;
 
-        // Determine the comment based on the rating
+        //Ratings
         if (rating >= 4.5) {
           comment = "Trustworthy, always pays on time.";
         } else if (rating >= 4.0) {
@@ -319,7 +279,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Back Arrow
+                //Back Arrow
                 Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
@@ -330,13 +290,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Profile Picture
+                //Profile Picture
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: AssetImage(contact["image"]),
                 ),
                 const SizedBox(height: 10),
-                // Name
+                //Name
                 Text(
                   contact["name"],
                   style: const TextStyle(
@@ -345,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Star Ratings
+                //Star Ratings
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
@@ -362,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                   }),
                 ),
                 const SizedBox(height: 10),
-                // Comment
+
                 Text(
                   comment,
                   textAlign: TextAlign.center,
