@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   double balance = 0.0;
   String greeting = "Good Morning";
-  String username = "Hussain";
+  String username = "";
   List<Map<String, dynamic>> upcomingPayments = [];
 
   final List<Map<String, dynamic>> contacts = [
@@ -72,8 +72,7 @@ class _HomePageState extends State<HomePage> {
 
       if (response.statusCode == 200 && response.data is Map) {
         setState(() {
-          upcomingPayments =
-              List<Map<String, dynamic>>.from(response.data['debts']);
+          upcomingPayments = List<Map<String, dynamic>>.from(response.data['debts']);
         });
       } else {
         print('Failed to fetch debts: ${response.statusCode}');
@@ -392,7 +391,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -544,27 +543,20 @@ class _HomePageState extends State<HomePage> {
                   itemCount: upcomingPayments.length,
                   itemBuilder: (context, index) {
                     final payment = upcomingPayments[index];
-                    final initial =
-                        payment["fromAccount"]["username"][0].toUpperCase();
-                    final duration =
-                        payment["duration"] ?? 1; // Provide a default value
-                    final installmentFrequency =
-                        payment["installmentFrequency"] ?? 'weekly';
+                    final initial = payment["fromAccount"]["username"][0].toUpperCase();
+                    final duration = payment["duration"] ?? 1; // Provide a default value
+                    final installmentFrequency = payment["installmentFrequency"] ?? 'weekly';
                     double installmentAmount;
 
                     if (installmentFrequency == 'daily') {
-                      installmentAmount =
-                          payment["amount"].toDouble() / (duration * 30);
+                      installmentAmount = payment["amount"].toDouble() / (duration * 30);
                     } else if (installmentFrequency == 'weekly') {
-                      installmentAmount =
-                          payment["amount"].toDouble() / (duration * 4);
+                      installmentAmount = payment["amount"].toDouble() / (duration * 4);
                     } else {
-                      installmentAmount =
-                          payment["amount"].toDouble() / duration;
+                      installmentAmount = payment["amount"].toDouble() / duration;
                     }
 
-                    final remainingAmount = payment["amount"].toDouble() -
-                        (payment["paidAmount"] ?? 0.0);
+                    final remainingAmount = payment["remainingAmount"].toDouble();
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -599,8 +591,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    payment["fromAccount"][
-                                        "username"], // Display the username of the lender
+                                    payment["fromAccount"]["username"],
                                     style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -608,7 +599,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "Remaining: $remainingAmount KWD", // Display the remaining amount
+                                    "Remaining: $remainingAmount KWD",
                                     style: const TextStyle(
                                       color: Colors.red,
                                       fontSize: 14,
@@ -619,8 +610,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                _repayLoan(
-                                    payment["loanId"], installmentAmount);
+                                _repayLoan(payment["loanId"], installmentAmount);
                               },
                               child: const Text("Pay"),
                             ),
