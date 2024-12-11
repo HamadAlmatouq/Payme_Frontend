@@ -30,8 +30,20 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _setDynamicGreeting();
     _getBalance();
     _fetchDebts();
+  }
+
+  void _setDynamicGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      greeting = "Good Morning";
+    } else if (hour < 18) {
+      greeting = "Good Afternoon";
+    } else {
+      greeting = "Good Evening";
+    }
   }
 
   Future<void> _getBalance() async {
@@ -153,86 +165,253 @@ class _HomePageState extends State<HomePage> {
     double amount = 0.0;
     String installmentFrequency = "";
     int duration = 0;
+    List<Map<String, String>> installments =
+        []; // To store calculated installments
 
+    // Function to calculate installments and due dates
+    void calculateInstallments() {
+      installments.clear();
+      if (amount > 0 && duration > 0 && installmentFrequency.isNotEmpty) {
+        int totalInstallments = 0;
+        int daysInterval = 0;
+
+        if (installmentFrequency == 'daily') {
+          totalInstallments = duration * 30;
+          daysInterval = 1;
+        } else if (installmentFrequency == 'weekly') {
+          totalInstallments = duration * 4;
+          daysInterval = 7;
+        } else if (installmentFrequency == 'monthly') {
+          totalInstallments = duration;
+          daysInterval = 30;
+        }
+
+        double installmentAmount = amount / totalInstallments;
+        DateTime dueDate = DateTime.now();
+
+        for (int i = 0; i < totalInstallments; i++) {
+          installments.add({
+            "amount": installmentAmount.toStringAsFixed(2),
+            "dueDate": dueDate
+                .add(Duration(days: daysInterval * i))
+                .toString()
+                .split(' ')[0],
+          });
+        }
+      }
+    }
+
+    // Show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Lend Money"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: usernameController,
-                decoration:
-                    const InputDecoration(labelText: "Recipient Username"),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Lend Money"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration:
+                        const InputDecoration(labelText: "Recipient Username"),
+                  ),
+                  TextField(
+                    decoration: const InputDecoration(labelText: "Amount"),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        amount = double.tryParse(value) ?? 0.0;
+                        calculateInstallments(); // Recalculate installments
+                      });
+                    },
+                  ),
+                  DropdownButtonFormField<int>(
+                    decoration:
+                        const InputDecoration(labelText: "Duration (months)"),
+                    items: List.generate(12, (index) {
+                      int number = index + 1;
+                      return DropdownMenuItem<int>(
+                        value: number,
+                        child: Text('$number'),
+                      );
+                    }),
+                    value: duration != 0 ? duration : null,
+                    onChanged: (newValue) {
+                      setState(() {
+                        duration = newValue!;
+                        calculateInstallments(); // Recalculate installments
+                      });
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                        labelText: "Installment Frequency"),
+                    items: ['daily', 'weekly', 'monthly'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    value: installmentFrequency.isNotEmpty
+                        ? installmentFrequency
+                        : null,
+                    onChanged: (newValue) {
+                      setState(() {
+                        installmentFrequency = newValue!;
+                        calculateInstallments(); // Recalculate installments
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  if (installments.isNotEmpty) ...[
+                    const Text(
+                      "Installments:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    // Scrollable widget to display installments
+                    Container(
+                      height: 150, // Fixed height for the list
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: installments.map((installment) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Amount: ${installment["amount"]} KWD"),
+                                  Text("Due: ${installment["dueDate"]}"),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              TextField(
-                decoration: const InputDecoration(labelText: "Amount"),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  amount = double.tryParse(value) ?? 0.0;
-                },
-              ),
-              DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: "Duration"),
-                items: List.generate(12, (index) {
-                  int number = index + 1;
-                  return DropdownMenuItem<int>(
-                    value: number,
-                    child: Text('$number'),
-                  );
-                }),
-                value: duration != 0 ? duration : null,
-                onChanged: (newValue) {
-                  setState(() {
-                    duration = newValue!;
-                  });
-                },
-              ),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Installment"),
-                items: ['daily', 'weekly', 'monthly'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                value: installmentFrequency.isNotEmpty
-                    ? installmentFrequency
-                    : null,
-                onChanged: (newValue) {
-                  setState(() {
-                    installmentFrequency = newValue!;
-                  });
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _lendMoney(
-                  amount,
-                  usernameController.text,
-                  installmentFrequency,
-                  duration,
-                );
-                Navigator.pop(context);
-              },
-              child: const Text("Send"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _lendMoney(
+                      amount,
+                      usernameController.text,
+                      installmentFrequency,
+                      duration,
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Send"),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
+  // void _showLendMoneyDialog({String? prefilledUsername}) {
+  //   TextEditingController usernameController =
+  //       TextEditingController(text: prefilledUsername ?? "");
+  //   double amount = 0.0;
+  //   String installmentFrequency = "";
+  //   int duration = 0;
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Lend Money"),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             TextField(
+  //               controller: usernameController,
+  //               decoration:
+  //                   const InputDecoration(labelText: "Recipient Username"),
+  //             ),
+  //             TextField(
+  //               decoration: const InputDecoration(labelText: "Amount"),
+  //               keyboardType: TextInputType.number,
+  //               onChanged: (value) {
+  //                 amount = double.tryParse(value) ?? 0.0;
+  //               },
+  //             ),
+  //             DropdownButtonFormField<int>(
+  //               decoration: const InputDecoration(labelText: "Duration"),
+  //               items: List.generate(12, (index) {
+  //                 int number = index + 1;
+  //                 return DropdownMenuItem<int>(
+  //                   value: number,
+  //                   child: Text('$number'),
+  //                 );
+  //               }),
+  //               value: duration != 0 ? duration : null,
+  //               onChanged: (newValue) {
+  //                 setState(() {
+  //                   duration = newValue!;
+  //                 });
+  //               },
+  //             ),
+  //             DropdownButtonFormField<String>(
+  //               decoration: const InputDecoration(labelText: "Installment"),
+  //               items: ['daily', 'weekly', 'monthly'].map((String value) {
+  //                 return DropdownMenuItem<String>(
+  //                   value: value,
+  //                   child: Text(value),
+  //                 );
+  //               }).toList(),
+  //               value: installmentFrequency.isNotEmpty
+  //                   ? installmentFrequency
+  //                   : null,
+  //               onChanged: (newValue) {
+  //                 setState(() {
+  //                   installmentFrequency = newValue!;
+  //                 });
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //             },
+  //             child: const Text("Cancel"),
+  //           ),
+  //           ElevatedButton(
+  //             onPressed: () {
+  //               _lendMoney(
+  //                 amount,
+  //                 usernameController.text,
+  //                 installmentFrequency,
+  //                 duration,
+  //               );
+  //               Navigator.pop(context);
+  //             },
+  //             child: const Text("Send"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildStarRating(double rating) {
     int fullStars = rating.floor();
