@@ -24,5 +24,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/1.png
-    - assets/background.mp4 
+    - assets/images/
+    - assets/background.mp4

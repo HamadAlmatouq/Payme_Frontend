@@ -19,12 +19,12 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> upcomingPayments = [];
 
   final List<Map<String, dynamic>> contacts = [
-    {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
-    {"name": "Ghanim", "image": "assets/images/1.png", "rating": 3.8},
-    {"name": "Yousef", "image": "assets/images/1.png", "rating": 4.0},
-    {"name": "Reem", "image": "assets/images/1.png", "rating": 4.9},
-    {"name": "Abdulwahab", "image": "assets/images/1.png", "rating": 2.0},
-    {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
+    {"name": "Hamad", "image": "assets/images/11.jpeg", "rating": 4.5},
+    {"name": "Ghanim", "image": "assets/images/5.jpeg", "rating": 3.8},
+    {"name": "Yousef", "image": "assets/images/3.jpeg", "rating": 4.0},
+    {"name": "Reem", "image": "assets/images/12.jpeg", "rating": 4.9},
+    {"name": "Abdulwahab", "image": "assets/images/3.jpeg", "rating": 2.0},
+    {"name": "Meshari", "image": "assets/images/9.jpeg", "rating": 3.7},
   ];
 
   @override
