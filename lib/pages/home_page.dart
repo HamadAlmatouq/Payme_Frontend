@@ -15,7 +15,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   double balance = 0.0;
   String greeting = "Good Morning";
-  String username = "Hussain";
+  String username = "";
+  List<Map<String, dynamic>> upcomingPayments = [];
 
   final List<Map<String, dynamic>> contacts = [
     {"name": "Hamad", "image": "assets/images/1.png", "rating": 4.5},
@@ -26,17 +27,11 @@ class _HomePageState extends State<HomePage> {
     {"name": "Meshari", "image": "assets/images/1.png", "rating": 3.7},
   ];
 
-  final List<Map<String, dynamic>> upcomingPayments = [
-    {"name": "Hamad", "amount": 25.0, "dueDate": "9 Dec 2024"},
-    {"name": "Ghanim", "amount": 125.0, "dueDate": "10 Dec 2024"},
-    {"name": "Yousef", "amount": 41.0, "dueDate": "11 Dec 2024"},
-    {"name": "Reem", "amount": 75.0, "dueDate": "15 Dec 2024"},
-  ];
-
   @override
   void initState() {
     super.initState();
     _getBalance();
+    _fetchDebts();
   }
 
   Future<void> _getBalance() async {
@@ -55,6 +50,36 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         balance = 0.0;
       });
+    }
+  }
+
+  Future<void> _fetchDebts() async {
+    final token = await LendingProvider.getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No token found. Please sign in again.")),
+      );
+      return;
+    }
+
+    try {
+      Response response = await Client.dio.get(
+        '/loans/debts',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data is Map) {
+        setState(() {
+          upcomingPayments =
+              List<Map<String, dynamic>>.from(response.data['debts']);
+        });
+      } else {
+        print('Failed to fetch debts: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching debts: $e');
     }
   }
 
@@ -101,6 +126,7 @@ class _HomePageState extends State<HomePage> {
           SnackBar(
               content: Text("Successfully lent $amount KWD to $toUsername")),
         );
+        _fetchDebts(); // Refresh the debts list
       } else {
         print('Failed to lend money: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -114,6 +140,49 @@ class _HomePageState extends State<HomePage> {
       print('Error lending money: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred while lending money")),
+      );
+    }
+  }
+
+  Future<void> _repayLoan(String loanId, double amount) async {
+    try {
+      final token = await LendingProvider.getToken();
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No token found. Please sign in again.")),
+        );
+        return;
+      }
+
+      Response response = await Client.dio.post(
+        '/loans/repay-loan',
+        data: {
+          "loanId": loanId,
+          "amount": amount,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Successfully repaid $amount KWD")),
+        );
+        _fetchDebts(); // Refresh the debts list
+      } else {
+        print('Failed to repay loan: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Failed to repay loan: ${response.data['message'] ?? 'Unknown error'}"),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error repaying loan: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while repaying loan")),
       );
     }
   }
@@ -323,15 +392,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showPaymentDialog(BuildContext context, String name, double amount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PaymentDialog(name: name, amount: amount);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -385,47 +445,40 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(20.0),
-                  width: MediaQuery.of(context).size.width *
-                      0.8, // Make the container wider
+                  width: MediaQuery.of(context).size.width * 0.8,
                   decoration: BoxDecoration(
                     color: Colors.blueAccent.withOpacity(0.2),
-                    borderRadius:
-                        BorderRadius.circular(16), // Smooth rounded corners
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment:
-                        CrossAxisAlignment.center, // Center-align content
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "Balance", // Title added above the balance amount
+                        "Balance",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black54,
                         ),
                       ),
-                      const SizedBox(
-                          height: 10), // Spacing between title and balance
+                      const SizedBox(height: 10),
                       Text(
-                        "$balance KWD", // Dynamic balance value
+                        "$balance KWD",
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(
-                          height: 20), // Spacing between balance and button
+                      const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () =>
-                            _showLendMoneyDialog(), // Show lend money dialog
+                        onPressed: () => _showLendMoneyDialog(),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8), // Rounded button
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: const Text(
@@ -437,7 +490,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
               Text(
                 "Contacts",
@@ -472,15 +524,13 @@ class _HomePageState extends State<HomePage> {
                             contact["name"],
                             style: const TextStyle(fontSize: 14),
                           ),
-                          // const SizedBox(height: 5),
-                          // _buildStarRating(contact["rating"]),
                         ],
                       ),
                     );
                   },
                 ),
               ),
-              //const SizedBox(height: -5),
+              const SizedBox(height: 20),
               Text(
                 "Upcoming Payments",
                 style: const TextStyle(
@@ -494,7 +544,27 @@ class _HomePageState extends State<HomePage> {
                   itemCount: upcomingPayments.length,
                   itemBuilder: (context, index) {
                     final payment = upcomingPayments[index];
-                    final initial = payment["name"][0].toUpperCase();
+                    final initial =
+                        payment["fromAccount"]["username"][0].toUpperCase();
+                    final duration =
+                        payment["duration"] ?? 1; // Provide a default value
+                    final installmentFrequency =
+                        payment["installmentFrequency"] ?? 'weekly';
+                    double installmentAmount;
+
+                    if (installmentFrequency == 'daily') {
+                      installmentAmount =
+                          payment["amount"].toDouble() / (duration * 30);
+                    } else if (installmentFrequency == 'weekly') {
+                      installmentAmount =
+                          payment["amount"].toDouble() / (duration * 4);
+                    } else {
+                      installmentAmount =
+                          payment["amount"].toDouble() / duration;
+                    }
+
+                    final remainingAmount =
+                        payment["remainingAmount"].toDouble();
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -529,18 +599,18 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    payment["name"],
+                                    payment["fromAccount"]["username"],
                                     style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    "Due: ${payment["dueDate"]}",
+                                    "Remaining: $remainingAmount KWD",
                                     style: const TextStyle(
-                                      color: Color.fromARGB(255, 210, 113, 113),
-                                      fontSize: 12,
+                                      color: Colors.red,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
@@ -548,8 +618,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                _showPaymentDialog(context, payment["name"],
-                                    payment["amount"]);
+                                _repayLoan(
+                                    payment["loanId"], installmentAmount);
                               },
                               child: const Text("Pay"),
                             ),

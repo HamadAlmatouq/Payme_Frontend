@@ -65,12 +65,26 @@ class _SignInPageState extends State<SignInPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Sign In',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '𝐏𝐚𝐲', // 'Pay' in white
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white, // White color for 'Pay'
+                              ),
+                            ),
+                            TextSpan(
+                              text: '𝐌𝐞', // 'Me' in blue
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue, // Blue color for 'Me'
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 20),
