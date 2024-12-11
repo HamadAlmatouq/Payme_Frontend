@@ -437,29 +437,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              // Container(
-              //   padding: const EdgeInsets.all(16.0),
-              //   decoration: BoxDecoration(
-              //     color: Colors.blueAccent.withOpacity(0.2),
-              //     borderRadius: BorderRadius.circular(12),
-              //   ),
-              //   child: Column(
-              //     children: [
-              //       Text(
-              //         "$balance KWD",
-              //         style: const TextStyle(
-              //           fontSize: 28,
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       ),
-              //       const SizedBox(height: 20),
-              //       ElevatedButton(
-              //         onPressed: () => _showLendMoneyDialog(),
-              //         child: const Text("Lend"),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+
               const SizedBox(height: 20),
               Text(
                 "Contacts",
