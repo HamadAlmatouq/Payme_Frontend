@@ -33,7 +33,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
-      initialLocation: '/signin',
+      initialLocation: '/home',
       routes: [
         GoRoute(
           path: '/home',
@@ -63,6 +63,7 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
 
 
 // class MainScreen extends StatefulWidget {

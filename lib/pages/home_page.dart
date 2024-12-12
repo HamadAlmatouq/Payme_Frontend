@@ -263,9 +263,9 @@ class _HomePageState extends State<HomePage> {
                           calculateInstallments(); // Recalculate installments
                         });
                       },
-                    ),
+                    ), //Khadeejah
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<int>(
+                    TextField(
                       decoration: InputDecoration(
                         labelText: "Duration (months)",
                         labelStyle: const TextStyle(color: Colors.blue),
@@ -277,22 +277,54 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(color: Colors.blue),
                         ),
+                        helperText:
+                            "Enter a number between 1 and 12", // Helper text for the user
+                        helperStyle: const TextStyle(color: Colors.blue),
                       ),
-                      items: List.generate(12, (index) {
-                        int number = index + 1;
-                        return DropdownMenuItem<int>(
-                          value: number,
-                          child: Text('$number'),
-                        );
-                      }),
-                      value: duration != 0 ? duration : null,
-                      onChanged: (newValue) {
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
                         setState(() {
-                          duration = newValue!;
+                          int? inputValue = int.tryParse(value);
+                          if (inputValue != null &&
+                              inputValue > 0 &&
+                              inputValue <= 12) {
+                            duration =
+                                inputValue; // Set duration if it's within the valid range
+                          } else {
+                            duration = 0; // Reset to 0 if the input is invalid
+                          }
                           calculateInstallments(); // Recalculate installments
                         });
                       },
-                    ),
+                    ), // const SizedBox(height: 12),
+                    // DropdownButtonFormField<int>(
+                    //   decoration: InputDecoration(
+                    //     labelText: "Duration (months)",
+                    //     labelStyle: const TextStyle(color: Colors.blue),
+                    //     enabledBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //       borderSide: const BorderSide(color: Colors.blue),
+                    //     ),
+                    //     focusedBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //       borderSide: const BorderSide(color: Colors.blue),
+                    //     ),
+                    //   ),
+                    //   items: List.generate(12, (index) {
+                    //     int number = index + 1;
+                    //     return DropdownMenuItem<int>(
+                    //       value: number,
+                    //       child: Text('$number'),
+                    //     );
+                    //   }),
+                    //   value: duration != 0 ? duration : null,
+                    //   onChanged: (newValue) {
+                    //     setState(() {
+                    //       duration = newValue!;
+                    //       calculateInstallments(); // Recalculate installments
+                    //     });
+                    //   },
+                    // ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
@@ -1202,8 +1234,7 @@ class _HomePageState extends State<HomePage> {
                       final payment = upcomingPayments[index];
                       final initial =
                           payment["fromAccount"]["username"][0].toUpperCase();
-                      final duration =
-                          payment["duration"] ?? 1; 
+                      final duration = payment["duration"] ?? 1;
                       final installmentFrequency =
                           payment["installmentFrequency"] ?? 'weekly';
                       double installmentAmount;
@@ -1224,8 +1255,7 @@ class _HomePageState extends State<HomePage> {
 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.white
-                            .withOpacity(0.9), 
+                        color: Colors.white.withOpacity(0.9),
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Row(
@@ -1250,7 +1280,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       "${payment["amount"]} KWD",
                                       style: const TextStyle(
-                                        color: Colors.blue, 
+                                        color: Colors.blue,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
