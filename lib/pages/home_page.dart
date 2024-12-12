@@ -296,7 +296,8 @@ class _HomePageState extends State<HomePage> {
                           calculateInstallments(); // Recalculate installments
                         });
                       },
-                    ), // const SizedBox(height: 12),
+                    ),
+                    // const SizedBox(height: 12),
                     // DropdownButtonFormField<int>(
                     //   decoration: InputDecoration(
                     //     labelText: "Duration (months)",
@@ -724,7 +725,7 @@ class _HomePageState extends State<HomePage> {
         double rating = contact["rating"];
         String comment;
 
-        //Ratings
+        // Ratings
         if (rating >= 4.5) {
           comment = "Trustworthy, always pays on time.";
         } else if (rating >= 4.0) {
@@ -736,77 +737,102 @@ class _HomePageState extends State<HomePage> {
         }
 
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          backgroundColor: Colors.white.withOpacity(0.9), // Transparent white
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                //Back Arrow
+                // Close Button
                 Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back, color: Colors.blue),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
                 ),
                 const SizedBox(height: 10),
-                //Profile Picture
+                // Profile Picture
                 CircleAvatar(
-                  radius: 40,
+                  radius: 50,
                   backgroundImage: AssetImage(contact["image"]),
                 ),
                 const SizedBox(height: 10),
-                //Name
+                // Name
                 Text(
                   contact["name"],
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    color: Colors.blue, // Blue text
                   ),
                 ),
-                const SizedBox(height: 10),
-                //Star Ratings
+                const SizedBox(height: 15),
+                // Star Ratings
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
                     if (index < rating.floor()) {
                       return const Icon(Icons.star,
-                          color: Colors.amber, size: 20);
+                          color: Colors.amber, size: 24);
                     } else if (index < rating) {
                       return const Icon(Icons.star_half,
-                          color: Colors.amber, size: 20);
+                          color: Colors.amber, size: 24);
                     } else {
                       return const Icon(Icons.star_border,
-                          color: Colors.amber, size: 20);
+                          color: Colors.amber, size: 24);
                     }
                   }),
                 ),
                 const SizedBox(height: 10),
-
+                // Comment
                 Text(
                   comment,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                // Buttons: Lend
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // Lend logic
-                        _showLendMoneyDialog(
-                            prefilledUsername: contact["name"]);
-                      },
-                      child: const Text("Lend"),
+                // Lend Button with gradient
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Colors.lightBlueAccent, Colors.blue],
                     ),
-                  ],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showLendMoneyDialog(prefilledUsername: contact["name"]);
+                    },
+                    child: const Text(
+                      "Lend",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -815,6 +841,104 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+  // void _showContactDialog(BuildContext context, Map<String, dynamic> contact) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       double rating = contact["rating"];
+  //       String comment;
+
+  //       //Ratings
+  //       if (rating >= 4.5) {
+  //         comment = "Trustworthy, always pays on time.";
+  //       } else if (rating >= 4.0) {
+  //         comment = "Great, reliable lender.";
+  //       } else if (rating >= 3.0) {
+  //         comment = "Good, but proceed with caution.";
+  //       } else {
+  //         comment = "Risky, be careful.";
+  //       }
+
+  //       return Dialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(16.0),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               //Back Arrow
+  //               Align(
+  //                 alignment: Alignment.topLeft,
+  //                 child: IconButton(
+  //                   icon: const Icon(Icons.arrow_back),
+  //                   onPressed: () {
+  //                     Navigator.pop(context);
+  //                   },
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 10),
+  //               //Profile Picture
+  //               CircleAvatar(
+  //                 radius: 40,
+  //                 backgroundImage: AssetImage(contact["image"]),
+  //               ),
+  //               const SizedBox(height: 10),
+  //               //Name
+  //               Text(
+  //                 contact["name"],
+  //                 style: const TextStyle(
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 10),
+  //               //Star Ratings
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: List.generate(5, (index) {
+  //                   if (index < rating.floor()) {
+  //                     return const Icon(Icons.star,
+  //                         color: Colors.amber, size: 20);
+  //                   } else if (index < rating) {
+  //                     return const Icon(Icons.star_half,
+  //                         color: Colors.amber, size: 20);
+  //                   } else {
+  //                     return const Icon(Icons.star_border,
+  //                         color: Colors.amber, size: 20);
+  //                   }
+  //                 }),
+  //               ),
+  //               const SizedBox(height: 10),
+
+  //               Text(
+  //                 comment,
+  //                 textAlign: TextAlign.center,
+  //                 style: const TextStyle(color: Colors.grey, fontSize: 14),
+  //               ),
+  //               const SizedBox(height: 20),
+  //               // Buttons: Lend
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   ElevatedButton(
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                       // Lend logic
+  //                       _showLendMoneyDialog(
+  //                           prefilledUsername: contact["name"]);
+  //                     },
+  //                     child: const Text("Lend"),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
 //   @override
 //   Widget build(BuildContext context) {
