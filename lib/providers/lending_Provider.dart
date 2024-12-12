@@ -115,4 +115,31 @@ class LendingProvider with ChangeNotifier {
       throw Exception('Unable to repay loan: $e');
     }
   }
+  
+// Fetch Username
+static Future<String> fetchUsername() async {
+  final token = await getToken();
+
+  if (token == null) {
+    throw Exception('No token found');
+  }
+
+  try {
+    Response response = await Client.dio.get(
+      '/auth/username',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
+
+    if (response.statusCode == 200 && response.data is Map) {
+      return response.data['username'];
+    } else {
+      throw Exception('Failed to fetch username');
+    }
+  } catch (e) {
+    throw Exception('Unable to fetch username: $e');
+  }
+}
+
 }
